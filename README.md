@@ -1,5 +1,5 @@
 # TB-PGRAFIKA-KOMPUTER
-<li>Tugas Besar Praktikum Grafika Komputer</li>
+<ul>Tugas Besar Praktikum Grafika Komputer</ul>
 <h2>Penerapan Transformasi 3D pada Objek Makanan Manis dalam OpenGL</h2>
 <h2>Kelompok 2</h2>
 <ul> Anggota :
