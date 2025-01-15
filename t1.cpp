@@ -1,9 +1,9 @@
-#include <iostream>        // Mengimpor library untuk input dan output (seperti cout, cin).
+#include <iostream>   
 #include <GL/glut.h>       
 #include <GL/freeglut.h>    
-#include <math.h>           
+#include <math.h>  
+#include <cstdlib>         
 using namespace std; 
-// untuk menghindari menulis 'std::' di depan elemen standar C++ seperti cout, cin, dll.
 
 //Salma
 struct Move {
@@ -13,13 +13,15 @@ struct Move {
     float translateY = 0.0; 
 } donat, coklat, esKulKul;
 
-bool isMoving = true;      // Kontrol animasi otomatis objek
-bool is2DMode = false;     // Mode 2D (tidak digunakan dalam kode ini)
+bool isMoving = true;      
+bool is2DMode = false;     
 float lightPos[] = {-10.0f, 10.0f, 10.0f, 1.0f}; // Posisi sumber cahaya dalam ruang 3D
 int Object = 1;    
-bool hiddenCarte = false;  // Kontrol visibilitas sumbu Kartesius
-bool Loading = true;   // Menampilkan layar pemuatan awal
+bool hiddenCarte = false; 
+bool Loading = true;  
 float loadingProgress = 0.0; 
+const int MAX_CHIPS = 30;
+float chocoChips[MAX_CHIPS][3]; // Array 2D untuk menyimpan posisi (x, y, z)
 
 // Salma
 void Kartesius() {
@@ -66,7 +68,7 @@ void LoadingScene() {
     glPopMatrix();
 
     // Perbarui status loading
-    loadingProgress += 1.0;
+    loadingProgress += 0.5;
     if (loadingProgress >= 100.0) {
         Loading = false;  // Hentikan layar loading
         loadingProgress = 0.0;
@@ -155,55 +157,78 @@ void Coklat() {
     glPopMatrix();
 }
 
+//gea
+void RandomChocoChips(int count, float radius)
+{
+    for (int i = 0; i < count; i++)
+    {
+        float theta = (float(rand()) / RAND_MAX) * 2.0f * 3.14159f;
+        float phi = (float(rand()) / RAND_MAX) * 3.14159f;
+        float r = radius;
+
+        // Hitung koordinat berdasarkan sphere mapping
+        chocoChips[i][0] = r * sin(phi) * cos(theta); // x
+        chocoChips[i][1] = r * sin(phi) * sin(theta); // y
+        chocoChips[i][2] = r * cos(phi);              // z
+    }
+}
+
+void ChocoChips(int count)
+{
+    glColor3ub(139, 69, 19); // Warna coklat untuk choco chips
+    for (int i = 0; i < count; i++)
+    {
+        glPushMatrix();
+        glTranslatef(
+            chocoChips[i][0], // x
+            chocoChips[i][1], // y
+            chocoChips[i][2]  // z
+        );
+        glutSolidSphere(0.3, 20, 20); // Sphere kecil untuk choco chips
+        glPopMatrix();
+    }
+}
+
 //Gea
-void EsKulKul() {
+void EsKulKul()
+{
     glPushMatrix();
+    // Terapkan translasi, rotasi, dan skala berdasarkan transformasi esKulKul
     glTranslatef(esKulKul.translateX, esKulKul.translateY, 0.0);
     glRotatef(esKulKul.rotate, 0.0, 1.0, 0.0);
     glScalef(esKulKul.scale, esKulKul.scale, esKulKul.scale);
-    
+
     // Membalik orientasi es kul-kul
     glRotatef(180, 1.0, 0.0, 0.0);
 
     // Pindahkan posisi dasar es kul-kul
-    glTranslatef(0.0, 18.0, 0.0);  
-    
+    glTranslatef(0.0, 18.0, 0.0);
+
     // Gambar stik es kul-kul
     glPushMatrix();
-    glColor3ub(139, 69, 19); // Warna coklat untuk stik
-    glTranslatef(0.0, 0.0, -7.0);  // Posisi stik di bawah es
-    glRotatef(90.0, 1.0, 0.0, 0.0); // Rotasi stik agar vertikal
+    glColor3ub(139, 69, 19);              // Warna coklat untuk stik
+    glTranslatef(0.0, 0.0, 0.0);          // Posisi stik di bawah es
+    glRotatef(90.0, 1.0, 0.0, 0.0);       // Rotasi stik agar vertikal
     glutSolidCylinder(0.5, 10.0, 20, 20); // Bentuk silinder untuk stik
 
     // Gambar lapisan pertama es kul-kul (biru)
-    glColor3ub(135, 206, 250); // Warna biru muda
-    glTranslatef(0.0, 0.0, 10.0);  // Pindahkan ke atas stik
+    glColor3ub(135, 206, 250);    // Warna biru muda
+    glTranslatef(0.0, 0.0, 10.0); // Pindahkan ke atas stik
     glutSolidSphere(4.0, 50, 50); // Bentuk bola untuk es
 
     // Gambar lapisan kedua es kul-kul (hijau)
-    glColor3ub(34, 139, 34);  
+    glColor3ub(34, 139, 34);      // Warna hijau
     glTranslatef(0.0, 0.0, 5.0);  // Pindahkan ke atas lapisan pertama
-    glutSolidSphere(4.0, 50, 50);  
+    glutSolidSphere(4.0, 50, 50); // Bentuk bola kedua
 
     // Gambar lapisan ketiga es kul-kul (merah muda)
-    glColor3ub(255, 105, 180);  
+    glColor3ub(255, 105, 180);    // Warna merah muda
     glTranslatef(0.0, 0.0, 5.0);  // Pindahkan ke atas lapisan kedua
-    glutSolidSphere(4.0, 50, 50);  
+    glutSolidSphere(4.0, 50, 50); // Bentuk bola ketiga
 
     // Tambahkan meises pada lapisan merah muda
     glPushMatrix();
-    glColor3ub(139, 69, 19); // Warna coklat untuk meises
-    for (int i = 0; i < 360; i += 20) { // Rotasi horizontal
-        for (int j = -90; j <= 90; j += 30) { // Rotasi vertikal
-            glPushMatrix();
-            glRotatef(i, 0.0, 1.0, 0.0); // Rotasi keliling bola
-            glRotatef(j, 1.0, 0.0, 0.0); // Rotasi pada sumbu Y
-            glTranslatef(4.2, 0.0, 0.0); // Posisikan meises di atas bola
-            glRotatef(90, 1.0, 0.0, 0.0); // Rotasi meises agar vertikal
-            glutSolidCylinder(0.1, 0.3, 10, 10); // Bentuk silinder kecil untuk meises
-            glPopMatrix();
-        }
-    }
+    ChocoChips(MAX_CHIPS);
     glPopMatrix();
 
     glPopMatrix(); // Selesai menggambar stik dan lapisan es
@@ -417,15 +442,18 @@ void display() {
 }
 
 // Salma
-void init3D() {
-    glEnable(GL_DEPTH_TEST); // Aktifkan depth testing untuk memastikan objek 3D terlihat benar
+void init3D()
+{
+    glEnable(GL_DEPTH_TEST);     // Aktifkan depth testing untuk memastikan objek 3D terlihat benar
     glEnable(GL_COLOR_MATERIAL); // Aktifkan pengaturan material warna
+
+    RandomChocoChips(MAX_CHIPS, 4.2f);
 
     // Inisialisasi pencahayaan
     glEnable(GL_LIGHTING);
     glEnable(GL_LIGHT0);
-    GLfloat ambientLight[] = {0.3f, 0.3f, 0.3f, 1.0f}; 
-    GLfloat diffuseLight[] = {1.0f, 1.0f, 1.0f, 1.0f}; 
+    GLfloat ambientLight[] = {0.3f, 0.3f, 0.3f, 1.0f}; // Cahaya ambient
+    GLfloat diffuseLight[] = {1.0f, 1.0f, 1.0f, 1.0f}; // Cahaya difus
     glLightfv(GL_LIGHT0, GL_AMBIENT, ambientLight);
     glLightfv(GL_LIGHT0, GL_DIFFUSE, diffuseLight);
     glLightfv(GL_LIGHT0, GL_POSITION, lightPos); // Posisi sumber cahaya
@@ -433,9 +461,10 @@ void init3D() {
     // Pengaturan viewport
     glMatrixMode(GL_PROJECTION);
     glLoadIdentity();
-    gluPerspective(70.0, 1.0, 1.0, 100.0); // Perspektif tampilan
+    gluPerspective(70.0, 1.0, 1.0, 100.0);                     // Perspektif tampilan
     gluLookAt(30.0, 30.0, 50.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0); // Posisi kamera
     glMatrixMode(GL_MODELVIEW);
+    glClearColor(0.0, 0.0, 0.0, 1.0); 
 }
 
 //Fathir
