@@ -15,13 +15,10 @@ struct Move {
 
 bool isMoving = true;      
 bool is2DMode = false;     
-float lightPos[] = {-10.0f, 10.0f, 10.0f, 1.0f}; // Posisi sumber cahaya dalam ruang 3D
 int Object = 1;    
 bool hiddenCarte = false; 
 bool Loading = true;  
 float loadingProgress = 0.0; 
-const int MAX_CHIPS = 30;
-float chocoChips[MAX_CHIPS][3]; // Array 2D untuk menyimpan posisi (x, y, z)
 
 // Salma
 void Kartesius() {
@@ -106,7 +103,7 @@ void Background() {
 void Donat() {
     glPushMatrix();
     glTranslatef(donat.translateX, donat.translateY, 0.0); // Pindahkan posisi donat
-    glRotatef(donat.rotate, 1.0, 0.0, 0.0); // Rotasi horizontal
+    glRotatef(donat.rotate, 1.0, 0.0, 0.0); // titik pusat Rotasi horizontal
     glScalef(donat.scale, donat.scale, donat.scale); // Skala donat
 
     // Warna dasar donat
@@ -115,9 +112,21 @@ void Donat() {
 
 	//topping seres
     glPushMatrix();
-    glColor3ub(255, 255, 255); // Warna putih untuk seres
+    glColor3ub(222, 184, 135); // Warna putih untuk seres
     glTranslatef(0.0, 0.0, 3.1); // Posisi seres di atas donat
-    for (int i = 0; i < 360; i += 30) {
+    for (int i = 0; i < 360; i += 50) {
+        glPushMatrix();
+        glRotatef(i, 0.0, 0.0, 0.1); // Sebar seres di keliling donat
+        glTranslatef(3.0, 0.0, 0.0); // Jarak dari pusat (radius luar donat)
+        glRotatef(90.0, 1.0, 0.0, 0.0); // Rotasi silinder agar tegak
+        glutSolidCylinder(0.1, 0.5, 20, 20); // Bentuk seres (silinder kecil)
+        glPopMatrix();
+    }
+    	//topping seres
+    glPushMatrix();
+    glColor3ub(222, 184, 135); // Warna putih untuk seres
+    glTranslatef(0.0, 0.0, 5.1); // Posisi seres di atas donat
+    for (int i = 0; i < 360; i += 40) {
         glPushMatrix();
         glRotatef(i, 0.0, 0.0, 1.0); // Sebar seres di keliling donat
         glTranslatef(4.0, 0.0, 0.0); // Jarak dari pusat (radius luar donat)
@@ -125,7 +134,17 @@ void Donat() {
         glutSolidCylinder(0.1, 0.5, 20, 20); // Bentuk seres (silinder kecil)
         glPopMatrix();
     }
-    
+    glPushMatrix();
+    glColor3ub(222, 184, 135); // Warna putih untuk seres
+    glTranslatef(0.0, 0.0, 5.1); // Posisi seres di atas donat
+    for (int i = 0; i < 360; i += 25) {
+        glPushMatrix();
+        glRotatef(i, 0.0, 0.0, 1.0); // Sebar seres di keliling donat
+        glTranslatef(5.0, 0.0, 0.0); // Jarak dari pusat (radius luar donat)
+        glRotatef(90.0, 1.0, 0.0, 0.0); // Rotasi silinder agar tegak
+        glutSolidCylinder(0.1, 0.5, 20, 20); // Bentuk seres (silinder kecil)
+        glPopMatrix();
+    }
     glPopMatrix();
 
     glPopMatrix();
@@ -158,6 +177,9 @@ void Coklat() {
 }
 
 //gea
+const int MAX_CHIPS = 30;
+float chocoChips[MAX_CHIPS][3]; // Array 2D untuk menyimpan posisi (x, y, z)
+
 void RandomChocoChips(int count, float radius)
 {
     for (int i = 0; i < count; i++)
@@ -193,7 +215,7 @@ void ChocoChips(int count)
 void EsKulKul()
 {
     glPushMatrix();
-    // Terapkan translasi, rotasi, dan skala berdasarkan transformasi esKulKul
+    // Terapkan translasi, rotasi, dan [[skala berdasarkan transformasi esKulKul
     glTranslatef(esKulKul.translateX, esKulKul.translateY, 0.0);
     glRotatef(esKulKul.rotate, 0.0, 1.0, 0.0);
     glScalef(esKulKul.scale, esKulKul.scale, esKulKul.scale);
@@ -263,12 +285,13 @@ void Menu() {
     glutAttachMenu(GLUT_RIGHT_BUTTON); 
 }
 
-// Gea
+// salma
 void update(int value) { 
     if (isMoving) { // Jika animasi diaktifkan
         donat.rotate += 1.0; 
-        coklat.rotate += 1.2; 
-        esKulKul.rotate += 0.5; 
+        coklat.rotate += 1.0; 
+        esKulKul.rotate += 1.0;
+        
     }
     glutPostRedisplay(); // Refresh tampilan
     glutTimerFunc(1000 / 60, update, 0); // Jadwalkan pembaruan berikutnya
@@ -282,6 +305,7 @@ void keyboard(unsigned char key, int x, int y) {
                 donat.scale += 0.1;
                 if (donat.scale >= 2){
                 	donat.scale -=0.1;
+                	
 				}
             else if (Object == 2)
                 coklat.scale += 0.1;
@@ -423,7 +447,7 @@ void display() {
         LoadingScene(); 
     } else {
         if (hiddenCarte) {
-            Kartesius(); 
+			Kartesius(); 
         }
         switch (Object) {
             case 1:
@@ -452,10 +476,11 @@ void init3D()
     // Inisialisasi pencahayaan
     glEnable(GL_LIGHTING);
     glEnable(GL_LIGHT0);
+    float lightPos[] = {-10.0f, 10.0f, 10.0f, 1.0f}; // Posisi sumber cahaya dalam ruang 3D
     GLfloat ambientLight[] = {0.3f, 0.3f, 0.3f, 1.0f}; // Cahaya ambient
     GLfloat diffuseLight[] = {1.0f, 1.0f, 1.0f, 1.0f}; // Cahaya difus
-    glLightfv(GL_LIGHT0, GL_AMBIENT, ambientLight);
-    glLightfv(GL_LIGHT0, GL_DIFFUSE, diffuseLight);
+    glLightfv(GL_LIGHT0, GL_AMBIENT, ambientLight); 
+    glLightfv(GL_LIGHT0, GL_DIFFUSE, diffuseLight); // cahaya yang berasal da
     glLightfv(GL_LIGHT0, GL_POSITION, lightPos); // Posisi sumber cahaya
 
     // Pengaturan viewport
@@ -464,7 +489,6 @@ void init3D()
     gluPerspective(70.0, 1.0, 1.0, 100.0);                     // Perspektif tampilan
     gluLookAt(30.0, 30.0, 50.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0); // Posisi kamera
     glMatrixMode(GL_MODELVIEW);
-    glClearColor(0.0, 0.0, 0.0, 1.0); 
 }
 
 //Fathir
@@ -476,7 +500,7 @@ int main(int argc, char **argv) {
     glutCreateWindow("KELOMPOK 2_TB GRAFKOM_E");  
     init3D(); 
     glutDisplayFunc(display); 
-    Menu(); // Buat menu interaktif
+    Menu();
     glutKeyboardFunc(keyboard); 
     glutTimerFunc(1000 / 60, update, 0); // Timer untuk pembaruan animasi
     glutMainLoop(); 
